@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" href="style.css" />
+    <title>Upload file</title>
+</head>
+<body>
+
+<div class="upload-container">
+    <h2>Upload a File</h2>
+    <input type="file" id="fileInput" />
+    <br />
+    <button onclick="uploadFile()">Upload</button>
+</div>
+
+<div id="results"></div>
+
+<script>
+    function uploadFile() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('Please select a file first.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      fetch('http://localhost:8080/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('Upload failed');
+        return response.json();
+      })
+      .then(data => displayResults(data))
+      .catch(error => alert('Error: ' + error.message));
+    }
+
+    function displayResults(assignments) {
+      const resultsDiv = document.getElementById('results');
+      if (!assignments.length) {
+        resultsDiv.innerHTML = '<p>No overlapping assignments found.</p>';
+        return;
+      }
+
+      let html = `
+        <h3>Overlapping Assignments</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>First Employee ID</th>
+              <th>Second Employee ID</th>
+              <th>Days Overlapped</th>
+              <th>Project ID</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      assignments.forEach(a => {
+        html += `
+          <tr>
+            <td>${a.firstEmployeeId}</td>
+            <td>${a.secondEmployeeId}</td>
+            <td>${a.days}</td>
+            <td>${a.projectId}</td>
+          </tr>
+        `;
+      });
+
+      html += '</tbody></table>';
+      resultsDiv.innerHTML = html;
+    }
+
+</script>
+</body>
+</html>
