@@ -56,14 +56,14 @@ public class ProjectAssignmentServiceImpl implements ProjectAssignmentService {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(multipartFile.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] values = line.split(",");
+                String[] rowValues = line.split(",");
 
-                Integer projectId = Integer.parseInt(values[1]);
-                LocalDate dateFrom = LocalDate.parse(values[2]);
-                LocalDate dateTo = values[3].equals("NULL") ? LocalDate.now() : LocalDate.parse(values[3]);
+                Integer projectId = Integer.parseInt(rowValues[1]);
+                LocalDate dateFrom = LocalDate.parse(rowValues[2]);
+                LocalDate dateTo = rowValues[3].equals("NULL") ? LocalDate.now() : LocalDate.parse(rowValues[3]);
                 if (dateFrom.isAfter(dateTo)) continue;
 
-                fillMap(assignmentsMap, values, projectId, dateFrom, dateTo);
+                fillMap(assignmentsMap, rowValues, projectId, dateFrom, dateTo);
             }
         } catch (IOException e) {
             throw new AssignmentException();
@@ -71,11 +71,11 @@ public class ProjectAssignmentServiceImpl implements ProjectAssignmentService {
         return assignmentsMap;
     }
 
-    private void fillMap(Map<Integer, Set<Assignment>> assignmentsMap, String[] values, Integer projectId, LocalDate dateFrom, LocalDate dateTo) {
+    private void fillMap(Map<Integer, Set<Assignment>> assignmentsMap, String[] rowValues, Integer projectId, LocalDate dateFrom, LocalDate dateTo) {
         assignmentsMap.computeIfAbsent(projectId, k -> new TreeSet<>(new AssignmentComparator()))
                 .add(Assignment.builder()
-                        .employeeId(Integer.parseInt(values[0]))
-                        .projectId(Integer.parseInt(values[1]))
+                        .employeeId(Integer.parseInt(rowValues[0]))
+                        .projectId(Integer.parseInt(rowValues[1]))
                         .dateFrom(dateFrom)
                         .dateTo(dateTo)
                         .build());
